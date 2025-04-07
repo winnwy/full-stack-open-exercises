@@ -3,6 +3,7 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import phoneService from "./services/node";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +11,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
   const [searchField, setSearchField] = useState("");
+  const [notification, setNotification] = useState({ message: null, type: "" });
 
   useEffect(() => {
     phoneService.getAll().then((allPersons) => {
@@ -20,7 +22,29 @@ const App = () => {
 
   const addPerson = (name, number) => {
     const newObject = { name, number };
-    phoneService.create(newObject);
+    phoneService
+      .create(newObject)
+      .then((returnedPerson) => {
+        const updatedPersons = persons.concat(returnedPerson);
+        setPersons(updatedPersons);
+        setFilteredPersons(updatedPersons);
+        setNotification({ message: `Added ${newName}`, type: "success" });
+        setTimeout(() => {
+          setNotification({ message: null, type: "" });
+        }, 5000);
+        setNewName("");
+        setNewPhone("");
+        setSearchField("");
+      })
+      .catch((error) => {
+        setNotification({
+          message: `Failed to add ${newName}`,
+          type: "error",
+        });
+        setTimeout(() => {
+          setNotification({ message: null, type: "" });
+        }, 5000);
+      });
   };
 
   const deleteHandler = (id) => {
@@ -37,9 +61,19 @@ const App = () => {
           setPersons(updated);
           setFilteredPersons(updated);
           setSearchField("");
+          setNotification({
+            message: `Deleted ${personToDelete.name}`,
+            type: "success",
+          });
+          setTimeout(() => {
+            setNotification({ message: null, type: "" });
+          }, 5000);
         })
         .catch((err) => {
-          alert(`Failed to delete ${personToDelete.name}`);
+          setNotification({
+            message: `Failed to delete ${personToDelete.name}`,
+            type: "error",
+          });
           console.error(err);
         });
     }
@@ -63,29 +97,44 @@ const App = () => {
             );
             setPersons(updatedPersons);
             setFilteredPersons(updatedPersons);
+            setNotification({
+              message: `Updated ${newName}`,
+              type: "success",
+            });
+            setTimeout(() => {
+              setNotification({ message: null, type: "" });
+            }, 5000);
             setNewName("");
             setNewPhone("");
             setSearchField("");
           })
           .catch((error) => {
-            alert(`Failed to update ${newName}`);
+            if (error.response && error.response.status === 404) {
+              setNotification({
+                message: `${newName} has been deleted, so their number cannot be updated.`,
+                type: "error",
+              });
+            }else {
+              setNotification({
+                message: `Failed to update ${newName}`,
+                type: "error",
+              });
+            }
+            setTimeout(() => {
+              setNotification({ message: null, type: "" });
+            }, 5000);
             console.error(error);
           });
       }
       return;
     }
     addPerson(newName, newPhone);
-    const newPersons = persons.concat({ name: newName, number: newPhone });
-    setPersons(newPersons);
-    setFilteredPersons(newPersons);
-    setNewName("");
-    setNewPhone("");
-    setSearchField("");
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification.message} type={notification.type} />
       <Filter
         searchField={searchField}
         setSearchField={setSearchField}
