@@ -26,12 +26,13 @@ const data = [
   },
 ];
 
-app.get("/", (request, response) => {
-  response.send("<h1>hello</h1>");
-});
-
 app.get("/api/persons", (request, response)=> {
     response.json(data)
+})
+
+app.get("/info", (request, response)=> {
+    const currentDate = new Date()
+    response.send(`<p>Phonebook has info for ${data.length} people</p><p>${currentDate}<p>`)
 })
 
 const PORT = 3001;
