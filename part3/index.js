@@ -1,7 +1,16 @@
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 
 app.use(express.json());
+
+morgan.token("body", (req) =>
+  req.method === "POST" ? JSON.stringify(req.body) : ""
+);
+
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 const data = [
   {
@@ -49,17 +58,16 @@ app.get("/api/persons/:id", (request, response) => {
 });
 
 app.delete("/api/persons/:id", (request, response) => {
-    const id = request.params.id;
-    const personIndex = data.findIndex((person)=>person.id === id);
-  
-    if (personIndex !== -1) {
-      data.splice(personIndex, 1)
-      response.status(204).end()
-    } else {
-      response.status(404).end();
-    }
-  });
-  
+  const id = request.params.id;
+  const personIndex = data.findIndex((person) => person.id === id);
+
+  if (personIndex !== -1) {
+    data.splice(personIndex, 1);
+    response.status(204).end();
+  } else {
+    response.status(404).end();
+  }
+});
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
@@ -70,10 +78,12 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
-  if (data.find((person)=>person.name.toLowerCase() === body.name.toLowerCase())) {
+  if (
+    data.find((person) => person.name.toLowerCase() === body.name.toLowerCase())
+  ) {
     return response.status(400).json({
-        error: "name already exists",
-    })
+      error: "name already exists",
+    });
   }
 
   const generateId = () => {
