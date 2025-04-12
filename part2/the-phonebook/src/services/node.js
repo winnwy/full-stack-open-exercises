@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const base_url = "http://localhost:3001/persons/";
+const base_url = "/api/persons";
 
 const getAll = async () => {
   const request = axios.get(base_url);
@@ -8,7 +8,7 @@ const getAll = async () => {
 };
 
 const create = async (newObject) => {
-  const request = axios.post(base_url, newObject);
+  const request = axios.post("/info", newObject);
   return request.then((response) => response.data);
 };
 

@@ -15,6 +15,7 @@ const App = () => {
 
   useEffect(() => {
     phoneService.getAll().then((allPersons) => {
+      console.log("Fetched persons:", allPersons); 
       setPersons(allPersons);
       setFilteredPersons(allPersons);
     });
