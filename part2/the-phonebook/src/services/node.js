@@ -8,7 +8,7 @@ const getAll = async () => {
 };
 
 const create = async (newObject) => {
-  const request = axios.post("/info", newObject);
+  const request = axios.post(base_url, newObject);
   return request.then((response) => response.data);
 };
 
