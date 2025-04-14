@@ -102,6 +102,34 @@ app.post("/api/persons", (request, response) => {
   response.json(person);
 });
 
+app.put("/api/persons/:id", (request, response) => {
+  const id = request.params.id;
+  const body = request.body;
+  
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: "name or number is missing",
+    });
+  }
+  
+  const personIndex = data.findIndex((person) => person.id === id);
+  
+  if (personIndex !== -1) {
+    // Update the existing person
+    const updatedPerson = {
+      ...data[personIndex],
+      number: body.number
+    };
+    
+    data[personIndex] = updatedPerson;
+    response.json(updatedPerson);
+  } else {
+    response.status(404).json({
+      error: "person not found"
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
