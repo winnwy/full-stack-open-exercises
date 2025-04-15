@@ -39,7 +39,7 @@ const App = () => {
       })
       .catch((error) => {
         setNotification({
-          message: `Failed to add ${newName}`,
+          message: `Failed to add ${newName}, ${error.response.data.error}`,
           type: "error",
         });
         setTimeout(() => {
